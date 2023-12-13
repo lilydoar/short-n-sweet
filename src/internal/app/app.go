@@ -17,17 +17,17 @@ type App struct {
 }
 
 type ShortUrlCreationRequest struct {
-	LongUrl string `json:"longUrl"` 
+	LongUrl string `json:"longUrl"`
 }
 
 type ShortUrlCreationResponse struct {
 	ShortUrl string `json:"shortUrl"`
 }
 
-func (a *App)CreateShortUrl(w http.ResponseWriter, r *http.Request) {
+func (a *App) CreateShortUrl(w http.ResponseWriter, r *http.Request) {
 	var request ShortUrlCreationRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		log.Error(err) 
+		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Invalid request body"))
 		return
@@ -60,11 +60,11 @@ func (a *App)CreateShortUrl(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonData)
 }
 
-func (a *App)HandleShortUrlRedirect(w http.ResponseWriter, r *http.Request) {
+func (a *App) HandleShortUrlRedirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	shortUrl := vars["shortUrl"]
 
-	log.WithFields(log.Fields{"method": r.Method, "shortUrl": shortUrl}).Info("Received request to redirect short URL")	
+	log.WithFields(log.Fields{"method": r.Method, "shortUrl": shortUrl}).Info("Received request to redirect short URL")
 
 	longUrl, err := a.CacheService.Get(shortUrl)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	redisPort = "6379"
+	redisPort     = "6379"
 	cacheDuration = 1 * time.Hour
 )
 
@@ -27,9 +27,9 @@ func InitRedisCache() *RedisCache {
 
 	redisAddr := "redis:" + redisPort
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: redisAddr,
+		Addr:     redisAddr,
 		Password: "",
-		DB: 0,
+		DB:       0,
 	})
 
 	_, err := redisClient.Ping(context.Background()).Result()

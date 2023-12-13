@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	serverIp = "0.0.0.0"
+	serverIp   = "0.0.0.0"
 	serverPort = "8080"
 )
 
@@ -41,10 +41,10 @@ func main() {
 	addr := serverIp + ":" + serverPort
 
 	log.Info("Starting server at " + addr)
-	server := &http.Server {
-		Addr: addr,
-		Handler: router,
-		ReadTimeout: 5 * time.Second,
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      router,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
 
@@ -58,7 +58,7 @@ func main() {
 	signal.Notify(channel, os.Interrupt)
 	<-channel
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {

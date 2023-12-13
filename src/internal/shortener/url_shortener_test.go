@@ -8,7 +8,7 @@ import (
 
 func TestSha256Base58UrlShortener(t *testing.T) {
 	links := []struct {
-		link string
+		link     string
 		expected string
 	}{
 		{link: "https://www.google.com", expected: "Cc4PMy5i"},
@@ -25,7 +25,7 @@ func TestSha256Base58UrlShortener(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-	
+
 		assert.Equal(t, shortLink, link.expected)
 	}
 }

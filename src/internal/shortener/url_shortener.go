@@ -7,10 +7,10 @@ import (
 )
 
 type UrlShortener interface {
-	Shorten(longUrl string) (string, error) 
+	Shorten(longUrl string) (string, error)
 }
 
-type Sha256Base58UrlShortener struct {}
+type Sha256Base58UrlShortener struct{}
 
 func (shortener *Sha256Base58UrlShortener) Shorten(longUrl string) (string, error) {
 	hash := sha256.Sum256([]byte(longUrl))
