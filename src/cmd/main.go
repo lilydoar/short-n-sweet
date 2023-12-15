@@ -7,8 +7,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/lilydoar/short-n-sweet/src/internal/app"
+	"github.com/lilydoar/short-n-sweet/src/internal/cache"
 	"github.com/lilydoar/short-n-sweet/src/internal/config"
+	"github.com/lilydoar/short-n-sweet/src/internal/handlers"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
@@ -23,15 +24,15 @@ func init() {
 func main() {
 	config := config.InitConfig()
 
-	app := app.InitApp(config)
+	redisCache := cache.InitRedisCache(config.Cache)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Welcome to the Short-n-Sweet URL shortener"))
 	})
-	router.HandleFunc("/shorten-url", app.CreateShortUrl).Methods("POST")
-	router.HandleFunc("/{shortUrl}", app.HandleShortUrlRedirect).Methods("GET")
+	router.Handle("/encode", handlers.EncodeHandler(redisCache, config)).Methods("POST")
+	router.Handle("/decode/{encodedUrl}", handlers.DecodeHandler(redisCache)).Methods("GET")
 
 	addr := config.Server.Host + ":" + config.Server.Port
 

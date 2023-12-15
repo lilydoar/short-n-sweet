@@ -11,6 +11,12 @@ type Config struct {
 	Server server.ServerConfig `json:"server" yaml:"server" toml:"server"`
 	Cache  cache.CacheConfig   `json:"cache" yaml:"cache" toml:"cache"`
 	// Database DatabaseConfig `json:"database" yaml:"database" toml:"database"`
+	Service ServiceConfig `json:"service" yaml:"service" toml:"service"`
+}
+
+type ServiceConfig struct {
+	Name   string `json:"name" yaml:"name" toml:"name"`
+	Domain string `json:"domain" yaml:"domain" toml:"domain"`
 }
 
 func InitConfig() Config {
