@@ -2,6 +2,8 @@ FROM golang:latest
 
 WORKDIR /app
 
+COPY config.yaml .
+
 COPY go.mod .
 COPY go.sum .
 

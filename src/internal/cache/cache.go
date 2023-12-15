@@ -8,8 +8,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type CacheConfig struct {
+	Address string `json:"address" yaml:"address" toml:"address" env:"CACHE_ADDRESS"`
+}
+
 const (
-	redisPort     = "6379"
 	cacheDuration = 1 * time.Hour
 )
 
@@ -22,12 +25,11 @@ type RedisCache struct {
 	client *redis.Client
 }
 
-func InitRedisCache() *RedisCache {
+func InitRedisCache(config CacheConfig) *RedisCache {
 	redisCache := &RedisCache{}
 
-	redisAddr := "redis:" + redisPort
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
+		Addr:     config.Address,
 		Password: "",
 		DB:       0,
 	})
@@ -36,7 +38,7 @@ func InitRedisCache() *RedisCache {
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		log.Info("Connected to Redis at " + redisAddr)
+		log.Info("Connected to Redis at " + config.Address)
 	}
 
 	redisCache.client = redisClient

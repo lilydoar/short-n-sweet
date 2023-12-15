@@ -8,15 +8,10 @@ import (
 	"time"
 
 	"github.com/lilydoar/short-n-sweet/src/internal/app"
-	"github.com/lilydoar/short-n-sweet/src/internal/cache"
+	"github.com/lilydoar/short-n-sweet/src/internal/config"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
-)
-
-const (
-	serverIp   = "0.0.0.0"
-	serverPort = "8080"
 )
 
 func init() {
@@ -26,9 +21,9 @@ func init() {
 }
 
 func main() {
-	app := &app.App{
-		CacheService: cache.InitRedisCache(),
-	}
+	config := config.InitConfig()
+
+	app := app.InitApp(config)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +33,7 @@ func main() {
 	router.HandleFunc("/shorten-url", app.CreateShortUrl).Methods("POST")
 	router.HandleFunc("/{shortUrl}", app.HandleShortUrlRedirect).Methods("GET")
 
-	addr := serverIp + ":" + serverPort
+	addr := config.Server.Host + ":" + config.Server.Port
 
 	log.Info("Starting server at " + addr)
 	server := &http.Server{

@@ -6,14 +6,14 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lilydoar/short-n-sweet/src/internal/cache"
+	"github.com/lilydoar/short-n-sweet/src/internal/config"
 	"github.com/lilydoar/short-n-sweet/src/internal/shortener"
 	log "github.com/sirupsen/logrus"
 )
 
-const host = "http://localhost:8080/"
-
 type App struct {
 	CacheService cache.Cache
+	Host         string
 }
 
 type ShortUrlCreationRequest struct {
@@ -22,6 +22,17 @@ type ShortUrlCreationRequest struct {
 
 type ShortUrlCreationResponse struct {
 	ShortUrl string `json:"shortUrl"`
+}
+
+func InitApp(c config.Config) App {
+	cache := cache.InitRedisCache(c.Cache)
+
+	app := App{
+		CacheService: cache,
+		Host:         c.Server.Host,
+	}
+
+	return app
 }
 
 func (a *App) CreateShortUrl(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +56,7 @@ func (a *App) CreateShortUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	a.CacheService.Set(shortUrl, request.LongUrl)
 
-	jsonData, err := json.Marshal(ShortUrlCreationResponse{ShortUrl: host + shortUrl})
+	jsonData, err := json.Marshal(ShortUrlCreationResponse{ShortUrl: a.Host + shortUrl})
 	if err != nil {
 		log.WithFields(log.Fields{"longUrl": request.LongUrl, "shortUrl": shortUrl}).Error(err)
 		w.WriteHeader(http.StatusInternalServerError)
