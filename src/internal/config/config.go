@@ -8,15 +8,19 @@ import (
 )
 
 type Config struct {
-	Server server.ServerConfig `json:"server" yaml:"server" toml:"server"`
-	Cache  cache.CacheConfig   `json:"cache" yaml:"cache" toml:"cache"`
-	// Database DatabaseConfig `json:"database" yaml:"database" toml:"database"`
-	Service ServiceConfig `json:"service" yaml:"service" toml:"service"`
+	Server server.ServerConfig `yaml:"server"`
+	Cache  cache.CacheConfig   `yaml:"cache"`
+	// Database DatabaseConfig `yaml:"database"`
+	Service ServiceConfig `yaml:"service"`
+	Logging LoggingConfig `yaml:"logging"`
 }
 
 type ServiceConfig struct {
-	Name   string `json:"name" yaml:"name" toml:"name"`
-	Domain string `json:"domain" yaml:"domain" toml:"domain"`
+	Domain string `yaml:"domain" env:"SERVICE_DOMAIN"`
+}
+
+type LoggingConfig struct {
+	Level string `yaml:"level" env:"LOG_LEVEL"`
 }
 
 func InitConfig() Config {

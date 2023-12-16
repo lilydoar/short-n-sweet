@@ -7,9 +7,8 @@ server:
 #   sslCertificate: "/path/to/certificate.pem" 
 #   sslKey: "/path/to/key.pem" 
 
-# logging:
-#   level: "INFO"
-#   path: "/var/log/server.log"
+logging:
+  level: "DEBUG"
 
 cache:
   address: "redis:6379"
@@ -34,8 +33,8 @@ cache:
 #   connectionTimeout: 30s
 
 service:
-  name: "url-shortener"
-  domain: "localhost:8080"
+  domain: "127.0.0.1:8080"
+  # name: "url-shortener"
 
 # application:
 #   shortener: "base58"

@@ -8,7 +8,7 @@ import (
 	"github.com/lilydoar/short-n-sweet/src/internal/cache"
 	"github.com/lilydoar/short-n-sweet/src/internal/config"
 	"github.com/lilydoar/short-n-sweet/src/internal/shortener"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 type EncodeRequest struct {
@@ -21,36 +21,46 @@ type EncodeResponse struct {
 
 func EncodeHandler(cache cache.Cache, cfg config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l := zerolog.Ctx(r.Context())
+
 		var request EncodeRequest
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-			log.Error().Err(err).Msg("invalid request body")
+			l.Error().Err(err).Msg("invalid request body")
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("invalid request body"))
 			return
 		}
 
-		log.Info().Str("method", r.Method).Str("url", request.Url).Msg("received request to encode url")
+		l.UpdateContext(func(c zerolog.Context) zerolog.Context {
+			return c.Str("request_url", request.Url)
+		})
 
 		shortener := shortener.Sha256Base58UrlShortener{}
 		encodedUrl, err := shortener.Shorten(request.Url)
 		if err != nil {
-			log.Error().Err(err).Str("url", request.Url).Msg("error encoding url")
+			l.Error().Err(err).Msg("encoding url")
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))
 			return
 		}
+
+		l.UpdateContext(func(c zerolog.Context) zerolog.Context {
+			return c.Str("encoded_url", encodedUrl)
+		})
+
+		l.Debug().Msg("encoded url")
 
 		cache.Set(encodedUrl, request.Url)
 
+		l.Debug().Msg("cached url")
+
 		responseData, err := json.Marshal(EncodeResponse{Url: cfg.Service.Domain + "/decode/" + encodedUrl})
 		if err != nil {
-			log.Error().Err(err).Msg("error marshalling json response")
+			l.Error().Err(err).Msg("marshalling json response")
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))
 			return
 		}
-
-		log.Info().Str("method", r.Method).Str("url", request.Url).Str("encodedUrl", encodedUrl).Msg("successfully encoded url")
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -63,18 +73,21 @@ func DecodeHandler(cache cache.Cache) http.Handler {
 		vars := mux.Vars(r)
 		encodedUrl := vars["encodedUrl"]
 
-		log.Info().Str("method", r.Method).Str("encodedUrl", encodedUrl).Msg("received request to decode url")
+		l := zerolog.Ctx(r.Context())
+		l.UpdateContext(func(c zerolog.Context) zerolog.Context {
+			return c.Str("encoded_url", encodedUrl)
+		})
 
-		url, err := cache.Get(encodedUrl)
+		decodedUrl, err := cache.Get(encodedUrl)
 		if err != nil {
-			log.Error().Err(err).Str("encodedUrl", encodedUrl).Msg("error retrieving url from cache")
+			l.Error().Err(err).Msg("retrieving url from cache")
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("internal server error"))
 			return
 		}
 
-		log.Info().Str("method", r.Method).Str("encodedUrl", encodedUrl).Str("url", url).Msg("redirecting to url")
+		l.Debug().Str("decoded_url", decodedUrl).Msg("decoded url")
 
-		http.Redirect(w, r, url, http.StatusMovedPermanently)
+		http.Redirect(w, r, decodedUrl, http.StatusMovedPermanently)
 	})
 }
