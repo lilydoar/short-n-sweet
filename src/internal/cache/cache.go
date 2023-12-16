@@ -5,11 +5,14 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
+type CacheConfig struct {
+	Address string `yaml:"address" env:"CACHE_ADDRESS"`
+}
+
 const (
-	redisPort     = "6379"
 	cacheDuration = 1 * time.Hour
 )
 
@@ -22,21 +25,20 @@ type RedisCache struct {
 	client *redis.Client
 }
 
-func InitRedisCache() *RedisCache {
+func InitRedisCache(config CacheConfig) *RedisCache {
 	redisCache := &RedisCache{}
 
-	redisAddr := "redis:" + redisPort
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
+		Addr:     config.Address,
 		Password: "",
 		DB:       0,
 	})
 
 	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("connecting to redis")
 	} else {
-		log.Info("Connected to Redis at " + redisAddr)
+		log.Info().Str("address", config.Address).Msg("connected to redis")
 	}
 
 	redisCache.client = redisClient

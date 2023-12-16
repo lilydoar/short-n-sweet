@@ -1,5 +1,5 @@
 services:
-  web-server:
+  server:
     build: .
     ports:
       - "8080:8080"

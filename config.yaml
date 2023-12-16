@@ -1,0 +1,40 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+# security:
+#   enableHTTPS: false 
+#   sslCertificate: "/path/to/certificate.pem" 
+#   sslKey: "/path/to/key.pem" 
+
+logging:
+  level: "DEBUG"
+
+cache:
+  address: "redis:6379"
+  # enable: true
+  # kind: "redis"
+  # configuration:
+  #   redis:
+  #     server: "redis:6379"
+  #     password: "password"
+
+# database:
+#   enable: true
+#   kind: "mysql"
+#   configuration:
+#     mysql:
+#       server: "mysql:3306"
+#       username: "root"
+#       password: "password"
+
+# performance:
+#   maxThreads: 100
+#   connectionTimeout: 30s
+
+service:
+  domain: "127.0.0.1:8080"
+  # name: "url-shortener"
+
+# application:
+#   shortener: "base58"
